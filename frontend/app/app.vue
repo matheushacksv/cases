@@ -47,6 +47,20 @@ const { data: segments } = await useFetch<SegmentOut[]>('/segments', {
   default: () => [],
 })
 
+// muitos nichos viram parede de chips → mostra top N (mais volumosos), resto atrás de "ver mais"
+const SEG_TOP = 8
+const showAllSegments = ref(false)
+const visibleSegments = computed(() => {
+  if (showAllSegments.value) return segments.value
+  const top = segments.value.slice(0, SEG_TOP)
+  // nicho selecionado fora do top continua visível (senão filtro ativo "some")
+  if (segmentId.value && !top.some((s) => s.id === segmentId.value)) {
+    const sel = segments.value.find((s) => s.id === segmentId.value)
+    if (sel) top.push(sel)
+  }
+  return top
+})
+
 interface Paged {
   items: CaseOut[]
   count: number
@@ -111,7 +125,7 @@ function selectSegment(id: number | null) {
           Todos
         </UButton>
         <UButton
-          v-for="s in segments"
+          v-for="s in visibleSegments"
           :key="s.id"
           :color="segmentId === s.id ? 'primary' : 'neutral'"
           :variant="segmentId === s.id ? 'solid' : 'soft'"
@@ -120,6 +134,15 @@ function selectSegment(id: number | null) {
         >
           {{ s.name }}
           <UBadge color="neutral" variant="subtle" size="sm">{{ s.n_cases }}</UBadge>
+        </UButton>
+        <UButton
+          v-if="segments.length > SEG_TOP"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="showAllSegments = !showAllSegments"
+        >
+          {{ showAllSegments ? 'ver menos' : `+ mais ${segments.length - SEG_TOP} nichos` }}
         </UButton>
       </div>
 
