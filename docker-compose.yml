@@ -23,6 +23,7 @@ services:
         condition: on-failure
       labels:
         - "traefik.enable=true"
+        - "traefik.docker.network=OHenriquecedorNet"
         - "traefik.http.routers.cases-api.rule=Host(`apicases.henriquegoularte.com.br`)"
         - "traefik.http.routers.cases-api.entrypoints=websecure"
         - "traefik.http.routers.cases-api.tls.certresolver=letsencrypt"
@@ -39,6 +40,7 @@ services:
         condition: on-failure
       labels:
         - "traefik.enable=true"
+        - "traefik.docker.network=OHenriquecedorNet"
         - "traefik.http.routers.cases-app.rule=Host(`cases.henriquegoularte.com.br`)"
         - "traefik.http.routers.cases-app.entrypoints=websecure"
         - "traefik.http.routers.cases-app.tls.certresolver=letsencrypt"
