@@ -1,0 +1,50 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    env_file: ./backend/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      retries: 5
+
+  backend:
+    image: cases-backend:latest
+    command: sh -c "uv run manage.py migrate && uv run gunicorn core.wsgi -b 0.0.0.0:8000"
+    env_file: ./backend/.env
+    environment:
+      POSTGRES_HOST: db
+    networks: [default, traefik]
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cases-api.rule=Host(`apicases.henriquegoularte.com.br`)"
+      - "traefik.http.routers.cases-api.entrypoints=websecure"
+      - "traefik.http.routers.cases-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cases-api.loadbalancer.server.port=8000"
+
+  frontend:
+    image: cases-frontend:latest
+    environment:
+      NUXT_PUBLIC_API_BASE: https://apicases.henriquegoularte.com.br/api
+    networks: [default, traefik]
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cases-app.rule=Host(`cases.henriquegoularte.com.br`)"
+      - "traefik.http.routers.cases-app.entrypoints=websecure"
+      - "traefik.http.routers.cases-app.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cases-app.loadbalancer.server.port=3000"
+
+networks:
+  default:
+  traefik:
+    external: true
+    name: OHenriquecedorNet
