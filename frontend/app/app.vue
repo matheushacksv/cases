@@ -15,6 +15,12 @@ interface CaseOut {
 
 const { apiBase } = useRuntimeConfig().public
 
+const colorMode = useColorMode()
+const isDark = computed({
+  get: () => colorMode.value === 'dark',
+  set: (v) => (colorMode.preference = v ? 'dark' : 'light'),
+})
+
 const q = ref('')
 const debouncedQ = ref('')
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -72,9 +78,19 @@ function selectSegment(id: number | null) {
 <template>
   <UApp>
     <UContainer class="max-w-4xl py-8">
-      <header class="mb-6">
-        <h1 class="text-2xl font-bold">Cases</h1>
-        <p class="text-muted">Consulta rápida de resultados por nicho</p>
+      <header class="mb-6 flex items-start justify-between gap-2">
+        <div>
+          <h1 class="text-2xl font-bold">Cases</h1>
+          <p class="text-muted">Consulta rápida de resultados por nicho</p>
+        </div>
+        <UButton
+          :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+          color="neutral"
+          variant="ghost"
+          size="lg"
+          aria-label="Alternar tema"
+          @click="isDark = !isDark"
+        />
       </header>
 
       <UInput
