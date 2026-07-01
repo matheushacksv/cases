@@ -20,12 +20,12 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.cases-api.rule=Host(`apicases.henriquegoularte.com.br`)"
-      - "traefik.http.routers.cases-api.entrypoints=websecure"
-      - "traefik.http.routers.cases-api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.cases-api.loadbalancer.server.port=8000"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.cases-api.rule=Host(`apicases.henriquegoularte.com.br`)"
+        - "traefik.http.routers.cases-api.entrypoints=websecure"
+        - "traefik.http.routers.cases-api.tls.certresolver=letsencrypt"
+        - "traefik.http.services.cases-api.loadbalancer.server.port=8000"
 
   frontend:
     image: cases-frontend:latest
@@ -36,15 +36,18 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.cases-app.rule=Host(`cases.henriquegoularte.com.br`)"
-      - "traefik.http.routers.cases-app.entrypoints=websecure"
-      - "traefik.http.routers.cases-app.tls.certresolver=letsencrypt"
-      - "traefik.http.services.cases-app.loadbalancer.server.port=3000"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.cases-app.rule=Host(`cases.henriquegoularte.com.br`)"
+        - "traefik.http.routers.cases-app.entrypoints=websecure"
+        - "traefik.http.routers.cases-app.tls.certresolver=letsencrypt"
+        - "traefik.http.services.cases-app.loadbalancer.server.port=3000"
 
 networks:
   default:
   traefik:
     external: true
     name: OHenriquecedorNet
+
+volumes:
+  postgres_data:
