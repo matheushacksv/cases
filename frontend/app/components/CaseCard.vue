@@ -31,7 +31,7 @@ async function copy() {
     <template #header>
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
-          <h3 class="font-semibold truncate">{{ caseItem.name }}</h3>
+          <h3 class="font-semibold break-words">{{ caseItem.name }}</h3>
           <div class="mt-1 flex items-center gap-2">
             <UBadge v-if="caseItem.segment_name" color="primary" variant="subtle" size="sm">
               {{ caseItem.segment_name }}
