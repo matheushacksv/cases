@@ -37,3 +37,8 @@ class SegmentOutDTO(Schema):
     @staticmethod
     def resolve_n_cases(obj):
         return getattr(obj, 'n', obj.cases.count())
+
+class CasePatchInDTO(Schema):
+    name: str | None = None
+    niche: str | None = None
+    result: str | None = None

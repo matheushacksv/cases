@@ -41,6 +41,32 @@ def create_case(data):
     )
 
 
+def update_case(
+    case_id: int,
+    name: str | None = None,
+    niche: str | None = None,
+    result: str | None = None,
+):
+    case = Case.objects.filter(id=case_id).first()
+
+    if case is None:
+        raise HttpError(404, 'not found')
+
+    if name:
+        case.name = name.strip()
+    if niche:
+        try:
+            case.niche_vec = embed(niche.strip())
+        except OpenAIError:
+            raise HttpError(503, 'classificação indisponivel')
+        case.niche_raw = niche.strip()
+    if result:
+        case.result = result
+
+    case.save()
+    return case
+
+
 def list_segments():
     return Segment.objects.annotate(n=Count('cases')).order_by('-n')
 
