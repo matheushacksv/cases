@@ -25,3 +25,5 @@ jobs:
             docker build -t cases-backend:latest ./backend
             docker build -t cases-frontend:latest ./frontend
             docker stack deploy -c docker-compose.yml cases
+            docker service update --image cases-backend:latest --force cases_backend
+            docker service update --image cases-frontend:latest --force cases_frontend
