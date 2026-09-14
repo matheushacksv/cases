@@ -1,0 +1,8 @@
+export interface CaseOut {
+  id: number
+  name: string
+  niche_raw: string
+  result: string
+  segment_id: number | null
+  segment_name: string | null
+}

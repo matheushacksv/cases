@@ -1,19 +1,14 @@
 <script setup lang="ts">
+import type { CaseOut } from '~/types'
+
 interface SegmentOut {
   id: number
   name: string
   n_cases: number
 }
-interface CaseOut {
-  id: number
-  name: string
-  niche_raw: string
-  result: string
-  segment_id: number | null
-  segment_name: string | null
-}
 
 const { apiBase } = useRuntimeConfig().public
+const { apiKey } = useApiKey()
 
 const colorMode = useColorMode()
 const isDark = computed({
@@ -66,7 +61,7 @@ interface Paged {
   count: number
 }
 
-const { data, status, error } = await useFetch(() => req.value.path, {
+const { data, status, error, refresh } = await useFetch(() => req.value.path, {
   baseURL: apiBase,
   query: computed(() => ({
     ...req.value.params,
@@ -87,6 +82,40 @@ function selectSegment(id: number | null) {
   debouncedQ.value = ''
   segmentId.value = id
 }
+
+// login compartilhado só é pedido na hora de criar/editar, não pra navegar
+const loginOpen = ref(false)
+const formOpen = ref(false)
+const editingCase = ref<CaseOut | null>(null)
+let pendingAction: (() => void) | null = null
+
+function gate(action: () => void) {
+  if (apiKey.value) action()
+  else {
+    pendingAction = action
+    loginOpen.value = true
+  }
+}
+function openCreate() {
+  gate(() => {
+    editingCase.value = null
+    formOpen.value = true
+  })
+}
+function openEdit(c: CaseOut) {
+  gate(() => {
+    editingCase.value = c
+    formOpen.value = true
+  })
+}
+function onLoginSuccess() {
+  pendingAction?.()
+  pendingAction = null
+}
+function onSaved() {
+  formOpen.value = false
+  refresh()
+}
 </script>
 
 <template>
@@ -97,14 +126,19 @@ function selectSegment(id: number | null) {
           <h1 class="text-2xl font-bold">Cases</h1>
           <p class="text-muted">Consulta rápida de resultados por nicho</p>
         </div>
-        <UButton
-          :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-          color="neutral"
-          variant="ghost"
-          size="lg"
-          aria-label="Alternar tema"
-          @click="isDark = !isDark"
-        />
+        <div class="flex items-center gap-2">
+          <UButton icon="i-lucide-plus" size="lg" @click="openCreate">
+            Novo case
+          </UButton>
+          <UButton
+            :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+            color="neutral"
+            variant="ghost"
+            size="lg"
+            aria-label="Alternar tema"
+            @click="isDark = !isDark"
+          />
+        </div>
       </header>
 
       <UInput
@@ -159,7 +193,7 @@ function selectSegment(id: number | null) {
         Nenhum case encontrado.
       </p>
       <div v-else class="grid gap-4 sm:grid-cols-2">
-        <CaseCard v-for="c in cases" :key="c.id" :case-item="c" />
+        <CaseCard v-for="c in cases" :key="c.id" :case-item="c" @edit="openEdit" />
       </div>
 
       <div v-if="total > PAGE_SIZE" class="mt-6 flex justify-center">
@@ -170,5 +204,13 @@ function selectSegment(id: number | null) {
         />
       </div>
     </UContainer>
+
+    <LoginModal v-model="loginOpen" @success="onLoginSuccess" />
+    <CaseFormModal
+      v-model="formOpen"
+      :case-item="editingCase"
+      @saved="onSaved"
+      @unauthorized="loginOpen = true"
+    />
   </UApp>
 </template>

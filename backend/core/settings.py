@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from corsheaders.defaults import default_headers
 from decouple import Csv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -18,6 +19,8 @@ DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv())
+# X-API-Key não está nos headers permitidos por padrão do django-cors-headers.
+CORS_ALLOW_HEADERS = [*default_headers, 'x-api-key']
 
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv(), default='https://apicases.henriquegoularte.com.br')
 

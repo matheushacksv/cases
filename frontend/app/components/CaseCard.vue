@@ -1,14 +1,8 @@
 <script setup lang="ts">
-interface CaseOut {
-  id: number
-  name: string
-  niche_raw: string
-  result: string
-  segment_id: number | null
-  segment_name: string | null
-}
+import type { CaseOut } from '~/types'
 
 const props = defineProps<{ caseItem: CaseOut }>()
+const emit = defineEmits<{ edit: [CaseOut] }>()
 
 const LIMIT = 220
 const expanded = ref(false)
@@ -44,14 +38,24 @@ async function copy() {
             </span>
           </div>
         </div>
-        <UButton
-          icon="i-lucide-copy"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          aria-label="Copiar resultado"
-          @click="copy"
-        />
+        <div class="flex gap-1">
+          <UButton
+            icon="i-lucide-pencil"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            aria-label="Editar case"
+            @click="emit('edit', caseItem)"
+          />
+          <UButton
+            icon="i-lucide-copy"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            aria-label="Copiar resultado"
+            @click="copy"
+          />
+        </div>
       </div>
     </template>
 
