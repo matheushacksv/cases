@@ -14,6 +14,7 @@ const name = ref('')
 const niche = ref('')
 const result = ref('')
 const videoUrl = ref('')
+const corte = ref(false)
 const loading = ref(false)
 
 // preenche o form quando o modal abre (create limpa, edit carrega o case)
@@ -23,6 +24,7 @@ watch(open, (v) => {
   niche.value = props.caseItem?.niche_raw ?? ''
   result.value = props.caseItem?.result ?? ''
   videoUrl.value = props.caseItem?.video_url ?? ''
+  corte.value = props.caseItem?.corte ?? false
 })
 
 const valid = computed(() => name.value.trim() && niche.value.trim() && result.value.trim())
@@ -41,6 +43,7 @@ async function submit() {
           niche: niche.value,
           result: result.value,
           video_url: videoUrl.value,
+          corte: corte.value,
         },
       })
     } else {
@@ -53,6 +56,7 @@ async function submit() {
           niche_raw: niche.value,
           result: result.value,
           video_url: videoUrl.value,
+          corte: corte.value,
         },
       })
     }
@@ -96,6 +100,11 @@ async function submit() {
           icon="i-lucide-video"
           size="lg"
           maxlength="500"
+        />
+        <UCheckbox
+          v-model="corte"
+          label="Corte"
+          description="Marca o case como pendente de vídeo até o link ser adicionado"
         />
         <UButton type="submit" block :loading="loading" :disabled="!valid">
           Salvar

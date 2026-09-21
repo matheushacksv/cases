@@ -17,6 +17,7 @@ class CaseInDTO(Schema):
     niche_raw: str = Field(max_length=150)
     result: str
     video_url: str = Field(default='', max_length=500)
+    corte: bool = False
 
     @field_validator('name', 'niche_raw', 'result')
     @classmethod
@@ -38,6 +39,7 @@ class CaseOutDTO(Schema):
     niche_raw: str
     result: str
     video_url: str = ''
+    corte: bool = False
     segment_id: int | None = None
     segment_name: str | None = None
 
@@ -60,6 +62,7 @@ class CasePatchInDTO(Schema):
     niche: str | None = None
     result: str | None = None
     video_url: str | None = Field(default=None, max_length=500)
+    corte: bool | None = None
 
     @field_validator('video_url')
     @classmethod

@@ -38,6 +38,11 @@ def update_case_endpoint(request, case_id: int, payload: CasePatchInDTO):
     return Status(
         200,
         services.update_case(
-            case_id, payload.name, payload.niche, payload.result, payload.video_url
+            case_id,
+            payload.name,
+            payload.niche,
+            payload.result,
+            payload.video_url,
+            payload.corte,
         ),
     )

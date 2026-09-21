@@ -16,6 +16,7 @@ class Case(models.Model):
     )
     result = models.TextField()
     video_url = models.URLField(max_length=500, blank=True, default='')
+    corte = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -39,6 +39,7 @@ def create_case(data):
         segment=segment,
         result=data.result,
         video_url=data.video_url,
+        corte=data.corte,
     )
 
 
@@ -48,6 +49,7 @@ def update_case(
     niche: str | None = None,
     result: str | None = None,
     video_url: str | None = None,
+    corte: bool | None = None,
 ):
     case = Case.objects.filter(id=case_id).first()
 
@@ -66,6 +68,8 @@ def update_case(
         case.result = result
     if video_url is not None:  # '' limpa o link
         case.video_url = video_url
+    if corte is not None:  # False é valor válido, não "não enviado"
+        case.corte = corte
 
     case.save()
     return case

@@ -4,6 +4,9 @@ import type { CaseOut } from '~/types'
 const props = defineProps<{ caseItem: CaseOut }>()
 const emit = defineEmits<{ edit: [CaseOut] }>()
 
+// corte marcado mas sem link do vídeo ainda → destaca o card até preencher
+const pendingVideo = computed(() => props.caseItem.corte && !props.caseItem.video_url)
+
 const LIMIT = 220
 const expanded = ref(false)
 const isLong = computed(() => props.caseItem.result.length > LIMIT)
@@ -21,11 +24,21 @@ async function copy() {
 </script>
 
 <template>
-  <UCard>
+  <UCard :class="pendingVideo ? 'ring-2 ring-warning' : ''">
     <template #header>
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
           <h3 class="font-semibold break-words">{{ caseItem.name }}</h3>
+          <UBadge
+            v-if="pendingVideo"
+            color="warning"
+            variant="subtle"
+            size="sm"
+            icon="i-lucide-triangle-alert"
+            class="mt-1"
+          >
+            Cliente com corte não adicionado
+          </UBadge>
           <div class="mt-1 flex items-center gap-2">
             <UBadge v-if="caseItem.segment_name" color="primary" variant="subtle" size="sm">
               {{ caseItem.segment_name }}
