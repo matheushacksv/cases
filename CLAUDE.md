@@ -20,8 +20,8 @@ uv run manage.py createsuperuser     # prompts for email (no username)
 uv run manage.py ensure_admin        # idempotent: creates superuser from ADMIN_EMAIL/ADMIN_PASSWORD if missing — wired into docker-compose's backend start command
 uv run manage.py shell               # REPL — used to calibrate THRESHOLD against real niches
 uv run manage.py test                # all tests
-uv run manage.py test apps.cases     # one app
-uv run manage.py test apps.cases.tests.ClassName.test_method  # single test
+uv run manage.py test apps.accounts.tests  # one module (`apps` is a namespace pkg: a bare `apps.accounts` label crashes discovery)
+uv run manage.py test apps.accounts.tests.ApiKeyAuthTests.test_aceita_api_key  # single test
 
 # Postgres (compose starts the DB only, not the app)
 docker compose up -d db
@@ -38,7 +38,7 @@ Layered, request flows top-down — keep each layer to its job:
 - `apps/<app>/services.py` — **all business logic lives here.** Endpoints and admin call into it.
 - `apps/<app>/schemas.py` — django-ninja DTOs, suffixed `*DTO` (`CaseInDTO`, `CaseOutDTO`, ...). Plain `Schema`, not `ModelSchema`; for computed/related fields use a `resolve_<field>` staticmethod, not `Field(alias='a.b')` (the dotted alias drops into the ORM factory and raises `ConfigError`).
 - `apps/<app>/models.py` — `core/` holds Django project config. Apps are namespaced: reference as `apps.<name>` in `INSTALLED_APPS`/migrations.
-- `api/security.py` — `api_key_auth` (`ApiKeyAuth`, header `X-API-Key`, compared with `secrets.compare_digest` against `API_KEY`). Applied per-route via `auth=api_key_auth` — currently only the write endpoints (`POST /cases`, `PATCH /cases/{id}`); reads (`GET /cases`, `/segments`, `/search`) are public.
+- `api/security.py` — `api_key_auth` (`ApiKeyAuth`, header `X-API-Key`, compared with `secrets.compare_digest` on bytes against `ADMIN_PASSWORD` — the site's shared login — or `API_KEY` for scripts). Applied per-route via `auth=api_key_auth` — currently only the write endpoints (`POST /cases`, `PATCH /cases/{id}`); reads (`GET /cases`, `/segments`, `/search`) are public.
 - `apps/accounts/` — custom `User` (`AUTH_USER_MODEL = 'accounts.User'`), email as `USERNAME_FIELD`, no `username`. Only backs `/admin`; the API itself authenticates via the static `API_KEY`, not user sessions.
 
 ### Semantic niche grouping (the core mechanism)
