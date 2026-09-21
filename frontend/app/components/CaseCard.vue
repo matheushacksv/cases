@@ -40,6 +40,17 @@ async function copy() {
         </div>
         <div class="flex gap-1">
           <UButton
+            v-if="caseItem.video_url"
+            :to="caseItem.video_url"
+            target="_blank"
+            rel="noopener noreferrer"
+            icon="i-lucide-video"
+            color="primary"
+            variant="ghost"
+            size="sm"
+            aria-label="Abrir vídeo de feedback"
+          />
+          <UButton
             icon="i-lucide-pencil"
             color="neutral"
             variant="ghost"

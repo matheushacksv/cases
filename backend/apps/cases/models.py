@@ -15,6 +15,7 @@ class Case(models.Model):
         Segment, null=True, on_delete=models.SET_NULL, related_name='cases'
     )
     result = models.TextField()
+    video_url = models.URLField(max_length=500, blank=True, default='')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

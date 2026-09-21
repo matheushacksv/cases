@@ -36,5 +36,8 @@ def search_cases_endpoint(request, query: str, limit: int = 10):
 @router.patch('/cases/{case_id}', response={200: CaseOutDTO}, auth=api_key_auth)
 def update_case_endpoint(request, case_id: int, payload: CasePatchInDTO):
     return Status(
-        200, services.update_case(case_id, payload.name, payload.niche, payload.result)
+        200,
+        services.update_case(
+            case_id, payload.name, payload.niche, payload.result, payload.video_url
+        ),
     )

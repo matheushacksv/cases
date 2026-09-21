@@ -38,6 +38,7 @@ def create_case(data):
         niche_vec=vec,
         segment=segment,
         result=data.result,
+        video_url=data.video_url,
     )
 
 
@@ -46,6 +47,7 @@ def update_case(
     name: str | None = None,
     niche: str | None = None,
     result: str | None = None,
+    video_url: str | None = None,
 ):
     case = Case.objects.filter(id=case_id).first()
 
@@ -62,6 +64,8 @@ def update_case(
         case.niche_raw = niche.strip()
     if result:
         case.result = result
+    if video_url is not None:  # '' limpa o link
+        case.video_url = video_url
 
     case.save()
     return case

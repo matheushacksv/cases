@@ -13,6 +13,7 @@ const isEdit = computed(() => !!props.caseItem)
 const name = ref('')
 const niche = ref('')
 const result = ref('')
+const videoUrl = ref('')
 const loading = ref(false)
 
 // preenche o form quando o modal abre (create limpa, edit carrega o case)
@@ -21,6 +22,7 @@ watch(open, (v) => {
   name.value = props.caseItem?.name ?? ''
   niche.value = props.caseItem?.niche_raw ?? ''
   result.value = props.caseItem?.result ?? ''
+  videoUrl.value = props.caseItem?.video_url ?? ''
 })
 
 const valid = computed(() => name.value.trim() && niche.value.trim() && result.value.trim())
@@ -34,14 +36,24 @@ async function submit() {
         baseURL: apiBase,
         method: 'PATCH',
         headers: { 'X-API-Key': apiKey.value },
-        body: { name: name.value, niche: niche.value, result: result.value },
+        body: {
+          name: name.value,
+          niche: niche.value,
+          result: result.value,
+          video_url: videoUrl.value,
+        },
       })
     } else {
       await $fetch('/cases', {
         baseURL: apiBase,
         method: 'POST',
         headers: { 'X-API-Key': apiKey.value },
-        body: { name: name.value, niche_raw: niche.value, result: result.value },
+        body: {
+          name: name.value,
+          niche_raw: niche.value,
+          result: result.value,
+          video_url: videoUrl.value,
+        },
       })
     }
     toast.add({ title: 'Case salvo', color: 'success', icon: 'i-lucide-check' })
@@ -56,6 +68,8 @@ async function submit() {
       toast.add({ title: 'Senha inválida', color: 'error', icon: 'i-lucide-x' })
     } else if (status === 503) {
       toast.add({ title: 'Classificação indisponível, tenta de novo', color: 'error' })
+    } else if (status === 422) {
+      toast.add({ title: 'Dados inválidos — o link precisa começar com http(s)://', color: 'error' })
     } else {
       toast.add({ title: 'Erro ao salvar case', color: 'error' })
     }
@@ -75,6 +89,14 @@ async function submit() {
         <UInput v-model="name" placeholder="Nome" size="lg" maxlength="150" />
         <UInput v-model="niche" placeholder="Nicho" size="lg" maxlength="150" />
         <UTextarea v-model="result" placeholder="Resultado" :rows="5" />
+        <UInput
+          v-model="videoUrl"
+          type="url"
+          placeholder="Link do vídeo de feedback (Drive) — opcional"
+          icon="i-lucide-video"
+          size="lg"
+          maxlength="500"
+        />
         <UButton type="submit" block :loading="loading" :disabled="!valid">
           Salvar
         </UButton>

@@ -3,6 +3,7 @@ export interface CaseOut {
   name: string
   niche_raw: string
   result: string
+  video_url: string
   segment_id: number | null
   segment_name: string | null
 }
