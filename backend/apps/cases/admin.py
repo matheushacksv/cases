@@ -25,7 +25,9 @@ class CaseAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
     def save_model(self, request, obj, form, change):
-        if 'niche_raw' in form.changed_data or not obj.niche_vec:
+        # obj.niche_vec é numpy.ndarray quando populado: "not array" levanta
+        # ValueError (truth value ambíguo p/ array com >1 elemento).
+        if 'niche_raw' in form.changed_data or obj.niche_vec is None:
             segment, vec = services.assign_segment(obj.niche_raw.strip())
             obj.niche_vec = vec
             if not change:
@@ -89,6 +91,7 @@ class SegmentAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
     def save_model(self, request, obj, form, change):
-        if 'name' in form.changed_data or not obj.centroid:
+        # mesmo motivo do CaseAdmin acima: "not array" quebra em numpy.ndarray.
+        if 'name' in form.changed_data or obj.centroid is None:
             obj.centroid = embed(obj.name.strip())
         super().save_model(request, obj, form, change)
