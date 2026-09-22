@@ -6,6 +6,7 @@ from django.shortcuts import redirect, render
 from django.urls import path
 
 from . import services
+from .embeddings import embed
 from .models import Case, Segment
 from .schemas import CaseInDTO
 
@@ -80,5 +81,14 @@ class CaseAdmin(admin.ModelAdmin):
 
 @admin.register(Segment)
 class SegmentAdmin(admin.ModelAdmin):
+    # centroid é um vetor de 1536 dims: ninguém digita isso. Se some sozinho
+    # a partir do "name" (mesma lógica que assign_segment usa pra semear um
+    # segmento novo), igual o CaseAdmin já faz com niche_vec.
+    exclude = ('centroid',)
     list_display = ('name',)
     search_fields = ('name',)
+
+    def save_model(self, request, obj, form, change):
+        if 'name' in form.changed_data or not obj.centroid:
+            obj.centroid = embed(obj.name.strip())
+        super().save_model(request, obj, form, change)
