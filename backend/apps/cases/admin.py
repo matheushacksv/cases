@@ -17,7 +17,11 @@ class CaseAdmin(admin.ModelAdmin):
     list_display = ('name', 'niche_raw', 'segment', 'created_at')
     list_filter = ('segment',)
     search_fields = ('name', 'niche_raw', 'result')
-    readonly_fields = ('niche_vec', 'created_at', 'updated_at')
+    # niche_vec fora do form: como readonly quebrava a página (pgvector devolve
+    # numpy.ndarray, e o admin faz "value in field.empty_values" pra exibir
+    # readonly, o que levanta ValueError em array com >1 elemento).
+    exclude = ('niche_vec',)
+    readonly_fields = ('created_at', 'updated_at')
 
     def save_model(self, request, obj, form, change):
         if 'niche_raw' in form.changed_data or not obj.niche_vec:
