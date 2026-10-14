@@ -5,8 +5,15 @@ export interface ApiRequest {
 
 // Decide qual endpoint chamar a partir do estado da tela.
 // Prioridade: busca digitada > segmento selecionado > lista recente.
-export function buildRequest(query: string, segmentId: number | null): ApiRequest {
+// has_video só existe em /cases — /search (semântico) não suporta esse filtro.
+export function buildRequest(
+  query: string,
+  segmentId: number | null,
+  hasVideo: boolean,
+): ApiRequest {
   if (query.trim()) return { path: '/search', params: { query } }
-  if (segmentId) return { path: '/cases', params: { segment_id: segmentId } }
-  return { path: '/cases', params: {} }
+  const params: Record<string, string | number> = {}
+  if (segmentId) params.segment_id = segmentId
+  if (hasVideo) params.has_video = 'true'
+  return { path: '/cases', params }
 }

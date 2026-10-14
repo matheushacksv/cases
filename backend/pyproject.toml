@@ -9,6 +9,7 @@ dependencies = [
     "django-cors-headers>=4.9.0",
     "django-ninja>=1.6.2",
     "django-ninja-extra>=0.31.5",
+    "gdown>=5.2.0",
     "gunicorn>=26.0.0",
     "openai>=2.44.0",
     "pgvector>=0.4.2",

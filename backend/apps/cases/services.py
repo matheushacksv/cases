@@ -5,6 +5,7 @@ from pgvector.django import CosineDistance
 
 from .embeddings import embed
 from .models import Case, Segment
+from .video import fetch_as_mp4
 
 THRESHOLD = 0.45
 SEARCH_MAX_DIST = 0.5
@@ -79,14 +80,29 @@ def list_segments():
     return Segment.objects.annotate(n=Count('cases')).order_by('-n')
 
 
-def list_cases(segment_id: int | None = None, query: str | None = None):
+def list_cases(
+    segment_id: int | None = None,
+    query: str | None = None,
+    has_video: bool | None = None,
+):
     qs = Case.objects.select_related('segment')
 
     if segment_id:
         qs = qs.filter(segment_id=segment_id)
     if query:
         qs = qs.filter(niche_raw__icontains=query)
+    if has_video:
+        qs = qs.exclude(video_url='')
     return qs.order_by('-created_at')
+
+
+def get_case_video_mp4(case_id: int, dest_dir):
+    case = Case.objects.filter(id=case_id).first()
+    if case is None:
+        raise HttpError(404, 'not found')
+    if not case.video_url:
+        raise HttpError(404, 'case sem vídeo')
+    return fetch_as_mp4(case.video_url, dest_dir), case.name
 
 
 def search_case(query: str, limit: int = 10):

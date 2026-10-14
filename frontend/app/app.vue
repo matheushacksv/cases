@@ -25,17 +25,21 @@ watch(q, (v) => {
 })
 
 const segmentId = ref<number | null>(null)
-// digitar busca desmarca o filtro de segmento
+const hasVideo = ref(false)
+// digitar busca desmarca os filtros de /cases (segmento, só c/ vídeo) — /search não os suporta
 watch(debouncedQ, (v) => {
-  if (v.trim()) segmentId.value = null
+  if (v.trim()) {
+    segmentId.value = null
+    hasVideo.value = false
+  }
 })
 
 const PAGE_SIZE = 12
 const page = ref(1)
-// trocar busca/segmento volta pra página 1
-watch([debouncedQ, segmentId], () => (page.value = 1))
+// trocar busca/segmento/filtro volta pra página 1
+watch([debouncedQ, segmentId, hasVideo], () => (page.value = 1))
 
-const req = computed(() => buildRequest(debouncedQ.value, segmentId.value))
+const req = computed(() => buildRequest(debouncedQ.value, segmentId.value, hasVideo.value))
 
 const { data: segments } = await useFetch<SegmentOut[]>('/segments', {
   baseURL: apiBase,
@@ -177,6 +181,15 @@ function onSaved() {
           @click="showAllSegments = !showAllSegments"
         >
           {{ showAllSegments ? 'ver menos' : `+ mais ${segments.length - SEG_TOP} nichos` }}
+        </UButton>
+        <UButton
+          icon="i-lucide-video"
+          :color="hasVideo ? 'primary' : 'neutral'"
+          :variant="hasVideo ? 'solid' : 'soft'"
+          size="sm"
+          @click="hasVideo = !hasVideo"
+        >
+          Só com vídeo
         </UButton>
       </div>
 

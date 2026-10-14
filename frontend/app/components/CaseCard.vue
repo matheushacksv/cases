@@ -4,6 +4,9 @@ import type { CaseOut } from '~/types'
 const props = defineProps<{ caseItem: CaseOut }>()
 const emit = defineEmits<{ edit: [CaseOut] }>()
 
+const { apiBase } = useRuntimeConfig().public
+const downloadUrl = computed(() => `${apiBase}/cases/${props.caseItem.id}/video.mp4`)
+
 // corte marcado mas sem link do vídeo ainda → destaca o card até preencher
 const pendingVideo = computed(() => props.caseItem.corte && !props.caseItem.video_url)
 
@@ -62,6 +65,15 @@ async function copy() {
             variant="ghost"
             size="sm"
             aria-label="Abrir vídeo de feedback"
+          />
+          <UButton
+            v-if="caseItem.video_url"
+            :to="downloadUrl"
+            icon="i-lucide-download"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            aria-label="Baixar vídeo em mp4 (pra mandar no WhatsApp como vídeo, não documento)"
           />
           <UButton
             icon="i-lucide-pencil"

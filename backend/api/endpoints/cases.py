@@ -1,5 +1,9 @@
+import tempfile
+from pathlib import Path
 from typing import List
 
+from django.http import HttpResponse
+from django.utils.text import slugify
 from ninja import Router, Status
 from ninja.pagination import PageNumberPagination, paginate
 
@@ -23,14 +27,28 @@ def list_segment_endpoint(request):
 @router.get('/cases', response={200: List[CaseOutDTO]})
 @paginate(PageNumberPagination, page_size=12)
 def list_cases_endpoint(
-    request, segment_id: int | None = None, query: str | None = None
+    request,
+    segment_id: int | None = None,
+    query: str | None = None,
+    has_video: bool | None = None,
 ):
-    return services.list_cases(segment_id, query)
+    return services.list_cases(segment_id, query, has_video)
 
 
 @router.get('/search', response={200: List[CaseOutDTO]})
 def search_cases_endpoint(request, query: str, limit: int = 10):
     return Status(200, services.search_case(query, limit))
+
+
+@router.get('/cases/{case_id}/video.mp4')
+def download_case_video_endpoint(request, case_id: int):
+    with tempfile.TemporaryDirectory() as tmp:
+        mp4_path, name = services.get_case_video_mp4(case_id, Path(tmp))
+        data = mp4_path.read_bytes()
+
+    resp = HttpResponse(data, content_type='video/mp4')
+    resp['Content-Disposition'] = f'attachment; filename="{slugify(name) or "video"}.mp4"'
+    return resp
 
 
 @router.patch('/cases/{case_id}', response={200: CaseOutDTO}, auth=api_key_auth)
