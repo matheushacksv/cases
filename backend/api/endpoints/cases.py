@@ -42,6 +42,9 @@ def search_cases_endpoint(request, query: str, limit: int = 10):
 
 @router.get('/cases/{case_id}/video.mp4')
 def download_case_video_endpoint(request, case_id: int):
+    # ponytail: lê o mp4 inteiro pra memória (um vídeo grande = um buffer grande,
+    # x --workers concorrentes). Trocar por FileResponse streamado (com cleanup do
+    # tempdir no response.close) se downloads simultâneos de vídeos grandes virarem problema real de RAM.
     with tempfile.TemporaryDirectory() as tmp:
         mp4_path, name = services.get_case_video_mp4(case_id, Path(tmp))
         data = mp4_path.read_bytes()
