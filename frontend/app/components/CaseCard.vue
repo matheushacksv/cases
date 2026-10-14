@@ -54,44 +54,12 @@ async function copy() {
             </span>
           </div>
         </div>
-        <div class="flex gap-1">
-          <UButton
-            v-if="caseItem.video_url"
-            :to="caseItem.video_url"
-            target="_blank"
-            rel="noopener noreferrer"
-            icon="i-lucide-video"
-            color="primary"
-            variant="ghost"
-            size="sm"
-            aria-label="Abrir vídeo de feedback"
-          />
-          <UButton
-            v-if="caseItem.video_url"
-            :to="downloadUrl"
-            icon="i-lucide-download"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            aria-label="Baixar vídeo em mp4 (pra mandar no WhatsApp como vídeo, não documento)"
-          />
-          <UButton
-            icon="i-lucide-pencil"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            aria-label="Editar case"
-            @click="emit('edit', caseItem)"
-          />
-          <UButton
-            icon="i-lucide-copy"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            aria-label="Copiar resultado"
-            @click="copy"
-          />
-        </div>
+        <CaseCardActions
+          :case-item="caseItem"
+          :download-url="downloadUrl"
+          @edit="emit('edit', caseItem)"
+          @copy="copy"
+        />
       </div>
     </template>
 
@@ -124,6 +92,14 @@ async function copy() {
         </div>
         <p class="whitespace-pre-line text-sm">{{ caseItem.result }}</p>
       </div>
+    </template>
+    <template #footer>
+      <CaseCardActions
+        :case-item="caseItem"
+        :download-url="downloadUrl"
+        @edit="emit('edit', caseItem)"
+        @copy="copy"
+      />
     </template>
   </UModal>
 </template>
