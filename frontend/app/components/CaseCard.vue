@@ -10,13 +10,13 @@ const downloadUrl = computed(() => `${apiBase}/cases/${props.caseItem.id}/video.
 // corte marcado mas sem link do vídeo ainda → destaca o card até preencher
 const pendingVideo = computed(() => props.caseItem.corte && !props.caseItem.video_url)
 
+// prévia curta no card; "ver mais" abre modal em vez de expandir no grid
+// (expandir inline fazia os outros cards saltarem de posição)
 const LIMIT = 220
-const expanded = ref(false)
+const detailOpen = ref(false)
 const isLong = computed(() => props.caseItem.result.length > LIMIT)
-const shown = computed(() =>
-  expanded.value || !isLong.value
-    ? props.caseItem.result
-    : props.caseItem.result.slice(0, LIMIT) + '…',
+const preview = computed(() =>
+  isLong.value ? props.caseItem.result.slice(0, LIMIT) + '…' : props.caseItem.result,
 )
 
 const toast = useToast()
@@ -95,16 +95,35 @@ async function copy() {
       </div>
     </template>
 
-    <p class="whitespace-pre-line text-sm">{{ shown }}</p>
+    <p class="whitespace-pre-line text-sm">{{ preview }}</p>
     <UButton
       v-if="isLong"
       variant="link"
       color="primary"
       size="sm"
       class="px-0 mt-1"
-      @click="expanded = !expanded"
+      @click="detailOpen = true"
     >
-      {{ expanded ? 'ver menos' : 'ver mais' }}
+      ver mais
     </UButton>
   </UCard>
+
+  <UModal v-model:open="detailOpen" :title="caseItem.name">
+    <template #body>
+      <div class="flex flex-col gap-3">
+        <div v-if="caseItem.segment_name || caseItem.niche_raw" class="flex items-center gap-2">
+          <UBadge v-if="caseItem.segment_name" color="primary" variant="subtle" size="sm">
+            {{ caseItem.segment_name }}
+          </UBadge>
+          <span
+            v-if="caseItem.niche_raw !== caseItem.segment_name"
+            class="text-xs text-muted"
+          >
+            {{ caseItem.niche_raw }}
+          </span>
+        </div>
+        <p class="whitespace-pre-line text-sm">{{ caseItem.result }}</p>
+      </div>
+    </template>
+  </UModal>
 </template>
